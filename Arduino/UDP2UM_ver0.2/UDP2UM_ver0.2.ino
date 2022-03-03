@@ -2,7 +2,7 @@
 /*              头文件加载              */
 /*===================================*/
 #include "network.h"
-#include "SPIRcv.h"
+#include "wifi_set.h"
 /*------------------------------------*/
 /*              变量定义               */
 /*===================================*/
@@ -27,6 +27,7 @@ void setup() {
   pinMode(LED_PIN, OUTPUT); //初始化LED引脚
   digitalWrite(LED_PIN, 0); //点亮LED灯
   Serial.begin(UART_BAUD);
+  wifiSetInit();
   WiFi_init(&wifi);
 }
 
