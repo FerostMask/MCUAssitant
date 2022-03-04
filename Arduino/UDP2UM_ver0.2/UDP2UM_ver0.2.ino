@@ -7,6 +7,7 @@
 /*              变量定义               */
 /*===================================*/
 wifi_info wifi = {//wifi信息存储
+  .bind = 0,
   .send_port = 9000,
   .receive_port = 8000,
   .staname = "智能车实验室601",
@@ -27,12 +28,15 @@ void setup() {
   pinMode(LED_PIN, OUTPUT); //初始化LED引脚
   digitalWrite(LED_PIN, 0); //点亮LED灯
   Serial.begin(UART_BAUD);
-  wifiSetInit();
+  infoUpdate(&wifi);
   WiFi_init(&wifi);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  broadcastMyIP(&wifi);
-  delay(1000);
+  if(!wifi.bind){
+    broadcastMyIP(&wifi);
+    delay(500);
+  }
+  delay(100);
 }

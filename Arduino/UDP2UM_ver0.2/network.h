@@ -11,6 +11,7 @@
 /*===================================*/
 typedef struct wifi_info
 {
+    bool bind;
     unsigned short send_port;
     unsigned short receive_port;
     char *staname;
@@ -25,6 +26,8 @@ typedef struct wifi_info
 /*------------------------------------*/
 /*           函数、变量声明           */
 /*==================================*/
-void WiFi_init(wifi_info *wifi);
-void broadcastMyIP(wifi_info *wifi);
+void WiFi_init(const wifi_info *wifi);
+void infoUpdate(wifi_info *wifi);
+void broadcastMyIP(const wifi_info *wifi);
+void udpSend(const char *adress);
 #endif
