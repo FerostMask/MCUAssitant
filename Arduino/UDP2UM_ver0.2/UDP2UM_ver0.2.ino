@@ -34,9 +34,5 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  if(!wifi.bind){
-    broadcastMyIP(&wifi);
-    delay(500);
-  }
-  delay(100);
+  udpReceive();
 }

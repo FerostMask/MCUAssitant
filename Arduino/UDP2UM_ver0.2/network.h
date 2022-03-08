@@ -30,4 +30,5 @@ void WiFi_init(const wifi_info *wifi);
 void infoUpdate(wifi_info *wifi);
 void broadcastMyIP(const wifi_info *wifi);
 void udpSend(const char *adress);
+void udpReceive();
 #endif
