@@ -6,14 +6,15 @@
 /*------------------------------------*/
 /*              变量定义               */
 /*===================================*/
-wifi_info wifi = {//wifi信息存储
-  .bind = 0,
-  .send_port = 9000,
-  .receive_port = 8000,
-  .staname = "智能车实验室601",
-  .stapassword = "51927,488349.znC",
-  .ip = "192.168.31.26",
-  .localname = "ESP8266",
+wifi_info wifi = {
+    // wifi信息存储
+    .bind = 0,
+    .send_port = 9000,
+    .receive_port = 8000,
+    .staname = "智能车实验室601",
+    .stapassword = "51927,488349.znC",
+    .ip = "192.168.31.26",
+    .localname = "ESP8266",
 };
 /*------------------------------------*/
 /*               宏定义                */
@@ -23,7 +24,8 @@ wifi_info wifi = {//wifi信息存储
 /*------------------------------------*/
 /*              函数定义               */
 /*===================================*/
-void setup() {
+void setup()
+{
   // put your setup code here, to run once:
   pinMode(LED_PIN, OUTPUT); //初始化LED引脚
   digitalWrite(LED_PIN, 0); //点亮LED灯
@@ -32,7 +34,9 @@ void setup() {
   WiFi_init(&wifi);
 }
 
-void loop() {
+void loop()
+{
   // put your main code here, to run repeatedly:
   udpReceive();
+  // broadcastMyIP(&wifi);
 }

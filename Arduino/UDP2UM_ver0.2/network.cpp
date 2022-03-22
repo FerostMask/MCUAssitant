@@ -25,7 +25,6 @@ void udpSend(const char *adress)
 {
     udp4Send.write(adress);
     udp4Send.endPacket();
-    udp4Send.begin(_localInfo->receive_port);
 }
 
 void udpReceive()
@@ -48,7 +47,6 @@ void broadcastMyIP(const wifi_info *wifi)
     udp4Send.write(",");
     udp4Send.write(WiFi.localIP().toString().c_str());
     udp4Send.endPacket();
-    udp4Send.begin(_localInfo->receive_port);
 }
 
 void WiFi_init(const wifi_info *wifi)

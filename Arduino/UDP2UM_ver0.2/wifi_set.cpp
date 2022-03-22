@@ -3,6 +3,10 @@
 /*====================================*/
 #include "wifi_set.h"
 #include "network.h"
+#include "stdint.h"
+#include "stdbool.h"
+
+#define LED_PIN 2
 /*------------------------------------*/
 /*              变量定义              */
 /*===================================*/
@@ -16,7 +20,8 @@ void serialEvent() // 伪串口接收中断函数
     {
         comdata += char(Serial.read());
     }
-    Serial.println(comdata);
-    udpSend(comdata.c_str());
+    // Serial.println(comdata);
+    // udpSend(comdata.c_str());
+    udpSend("receive!");
     comdata = "";
 }
