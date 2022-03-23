@@ -16,12 +16,23 @@ String comdata;
 /*===================================*/
 void serialEvent() // 伪串口接收中断函数
 {
+    static bool blink = false;
+    static bool completeFlag = false;
     while (Serial.available())
     {
-        comdata += char(Serial.read());
+        blink = !blink;
+        digitalWrite(LED_PIN, blink);
+        char inChar = (char)Serial.read();
+        comdata += inChar;
+        if (inChar == '\n')
+            completeFlag = true;
     }
-    // Serial.println(comdata);
-    // udpSend(comdata.c_str());
-    udpSend("receive!");
-    comdata = "";
+    if (completeFlag)
+    {
+        // Serial.println(comdata);
+        udpSend(comdata.c_str());
+        comdata = "";
+        completeFlag = false;
+    }
+    udpSend("Receive");
 }
