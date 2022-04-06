@@ -3,6 +3,12 @@
 /*====================================*/
 #include "network.h"
 #include "wifi_set.h"
+#include "string.h"
+/*------------------------------------*/
+/*              函数声明              */
+/*===================================*/
+static void _startWiFi();
+static void deviceBinding(String value, int index);
 /*------------------------------------*/
 /*              变量定义              */
 /*===================================*/
@@ -11,10 +17,7 @@ WiFiUDP udp4Send; // UDP通信结构体
 WiFiUDP udp4Receive;
 int packetSize;
 static wifi_info *_localInfo;
-/*------------------------------------*/
-/*              函数声明              */
-/*===================================*/
-static void _startWiFi();
+void (*parsingFunctions[])(String, int) = {deviceBinding};
 /*------------------------------------*/
 /*              函数定义              */
 /*===================================*/
@@ -27,6 +30,30 @@ void udpSend(const char *adress)
     udp4Send.endPacket();
 }
 
+inline static void messageParsing(String value)
+{
+    String frame;
+    RESPONSE_EVENT eventSelect;
+    // Serial.println(value);
+    for (int i = 0; i < value.length(); i++)
+    {
+        if (value[i] == ',')
+        {
+            if (strcmp(frame.c_str(), "BIND") == 0)
+            {
+                eventSelect = BINDING;
+            }
+            parsingFunctions[BINDING](value, i);
+            return;
+        }
+        frame += value[i];
+    }
+}
+
+static void deviceBinding(String value, int index)
+{
+}
+
 void udpReceive()
 {
     packetSize = udp4Receive.parsePacket();
@@ -34,9 +61,14 @@ void udpReceive()
     {
         // Serial.printf("IP: %s\n", udp4Receive.remoteIP().toString().c_str());
         String value = udp4Receive.readString();
-        Serial.println(value);
+        messageParsing(value);
+        // Serial.println(value);
     }
 }
+/*--------------------*/
+/*     数据解析模块    */
+/*==================*/
+
 /*--------------------*/
 /*       WIFI模块    */
 /*==================*/

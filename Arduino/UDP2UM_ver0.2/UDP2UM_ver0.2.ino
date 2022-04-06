@@ -3,19 +3,22 @@
 /*===================================*/
 #include "network.h"
 #include "wifi_set.h"
+#include "stdint.h"
 /*------------------------------------*/
 /*              变量定义               */
 /*===================================*/
 wifi_info wifi = {
     // wifi信息存储
-    .bind = 0,
+    .bind = false,
     .send_port = 9000,
     .receive_port = 8000,
     .staname = "智能车实验室601",
     .stapassword = "51927,488349.znC",
-    .ip = "192.168.31.26",
+    .ip = "192.168.31.255",
     .localname = "ESP8266",
 };
+uint64_t systemTime = 0;
+uint64_t lastTime = 0;
 /*------------------------------------*/
 /*               宏定义                */
 /*===================================*/
@@ -37,6 +40,11 @@ void setup()
 void loop()
 {
   // put your main code here, to run repeatedly:
+  systemTime = millis();
   udpReceive();
-  // broadcastMyIP(&wifi);
+  if (wifi.bind == false && systemTime - lastTime > 1000) // 1秒执行一次
+  {
+    lastTime = systemTime;
+    broadcastMyIP(&wifi);
+  }
 }
