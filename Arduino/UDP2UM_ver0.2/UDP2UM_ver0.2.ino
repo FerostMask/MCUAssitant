@@ -15,6 +15,7 @@ wifi_info wifi = {
     .staname = "智能车实验室601",
     .stapassword = "51927,488349.znC",
     .ip = "192.168.31.255",
+    .defaultIp = "192.168.31.255",
     .localname = "ESP8266",
 };
 uint64_t systemTime = 0;

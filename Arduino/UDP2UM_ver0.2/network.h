@@ -17,6 +17,7 @@ typedef struct wifi_info
     char *staname;
     char *stapassword;
     char *ip;
+    char *defaultIp;
     char *localname;
 } wifi_info;
 
@@ -26,6 +27,7 @@ typedef struct wifi_info
 typedef enum RESPONSE_EVENT
 {
     BINDING = 0,
+    UNBIND = 1,
 } RESPONSE_EVENT;
 /*------------------------------------*/
 /*           函数、变量声明           */

@@ -4,11 +4,13 @@
 #include "network.h"
 #include "wifi_set.h"
 #include "string.h"
+#include "stdio.h"
 /*------------------------------------*/
 /*              函数声明              */
 /*===================================*/
 static void _startWiFi();
-static void deviceBinding(String value, int index);
+static void deviceBinding(String value);
+static void deviceUnbind(String value);
 /*------------------------------------*/
 /*              变量定义              */
 /*===================================*/
@@ -17,7 +19,7 @@ WiFiUDP udp4Send; // UDP通信结构体
 WiFiUDP udp4Receive;
 int packetSize;
 static wifi_info *_localInfo;
-void (*parsingFunctions[])(String, int) = {deviceBinding};
+void (*parsingFunctions[])(String) = {deviceBinding, deviceUnbind};
 /*------------------------------------*/
 /*              函数定义              */
 /*===================================*/
@@ -37,21 +39,21 @@ inline static void messageParsing(String value)
     // Serial.println(value);
     for (int i = 0; i < value.length(); i++)
     {
-        if (value[i] == ',')
+        if (value[i] == ',') // 第一个','前为指令
         {
-            if (strcmp(frame.c_str(), "BIND") == 0)
+            if (strcmp(frame.c_str(), "BIND") == 0) // 绑定设备
             {
                 eventSelect = BINDING;
             }
-            parsingFunctions[BINDING](value, i);
+            else if (strcmp(frame.c_str(), "UNBIND") == 0) // 解绑设备
+            {
+                eventSelect = UNBIND;
+            }
+            parsingFunctions[eventSelect](&value[i + 1]);
             return;
         }
         frame += value[i];
     }
-}
-
-static void deviceBinding(String value, int index)
-{
 }
 
 void udpReceive()
@@ -68,7 +70,37 @@ void udpReceive()
 /*--------------------*/
 /*     数据解析模块    */
 /*==================*/
+static void deviceBinding(String value) // 绑定设备
+{
+    if (_localInfo->bind == true) // 已连接设备，不再连接新的设备
+    {
+        return;
+    }
+    char ip[value.length()];
+    sprintf(ip, "%s", value.c_str());
+    Serial.println(value);
+    _localInfo->ip = ip;                                         // 赋值目的地IP
+    udp4Send.beginPacket(_localInfo->ip, _localInfo->send_port); // 重新开启UDP发送数据| 以新目的地IP发送数据
+    _localInfo->bind = true;
+    udp4Send.write("BIND");
+    udp4Send.endPacket();
+    digitalWrite(LED_PIN, 0); // 点亮LED灯
+}
 
+static void deviceUnbind(String value) // 解绑设备
+{
+    if (_localInfo->bind == false) // 未绑定设备，无法解绑
+    {
+        return;
+    }
+    _localInfo->bind = true;
+    udp4Send.write("UNBIND");
+    udp4Send.endPacket();
+    _localInfo->bind = false;                                    // 给设备解绑
+    _localInfo->ip = _localInfo->defaultIp;                      // 重设目的地IP
+    udp4Send.beginPacket(_localInfo->ip, _localInfo->send_port); // 重新开启UDP发送数据| 以默认IP发送数据
+    digitalWrite(LED_PIN, 1);                                    // 熄灭LED灯
+}
 /*--------------------*/
 /*       WIFI模块    */
 /*==================*/
@@ -94,13 +126,13 @@ void WiFi_init(const wifi_info *wifi)
     }
     digitalWrite(LED_PIN, 1); //熄灭LED灯
     Serial.println("WiFi_init success!");
-    udp4Receive.begin(_localInfo->receive_port);     // 开启UDP接收数据
-    udp4Send.beginPacket(wifi->ip, wifi->send_port); // 开启UDP发送数据
+    udp4Receive.begin(_localInfo->receive_port);            // 开启UDP接收数据
+    udp4Send.beginPacket(wifi->defaultIp, wifi->send_port); // 开启UDP发送数据 | 以默认IP发送数据
 }
 
 void infoUpdate(wifi_info *wifi)
 {
-    _localInfo = wifi; // 留存本地备份
+    _localInfo = wifi; // 留存指针
 }
 
 static void _startWiFi()
