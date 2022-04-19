@@ -28,8 +28,11 @@ void (*parsingFunctions[])(String) = {deviceBinding, deviceUnbind};
 /*==================*/
 void udpSend(const char *adress)
 {
-    udp4Send.write(adress);
-    udp4Send.endPacket();
+    if (_localInfo->bind == true) // 总开关，连接上设备时才能发送数据
+    {
+        udp4Send.write(adress);
+        udp4Send.endPacket();
+    }
 }
 
 inline static void messageParsing(String value)
@@ -81,10 +84,11 @@ static void deviceBinding(String value) // 绑定设备
     Serial.println(value);
     _localInfo->ip = ip;                                         // 赋值目的地IP
     udp4Send.beginPacket(_localInfo->ip, _localInfo->send_port); // 重新开启UDP发送数据| 以新目的地IP发送数据
-    _localInfo->bind = true;
     udp4Send.write("BIND");
     udp4Send.endPacket();
     digitalWrite(LED_PIN, 0); // 点亮LED灯
+    delay(500);               // 延时，等待BIND发送完毕
+    _localInfo->bind = true;  // 标记为已绑定
 }
 
 static void deviceUnbind(String value) // 解绑设备
@@ -93,13 +97,18 @@ static void deviceUnbind(String value) // 解绑设备
     {
         return;
     }
-    _localInfo->bind = true;
-    udp4Send.write("UNBIND");
-    udp4Send.endPacket();
     _localInfo->bind = false;                                    // 给设备解绑
     _localInfo->ip = _localInfo->defaultIp;                      // 重设目的地IP
     udp4Send.beginPacket(_localInfo->ip, _localInfo->send_port); // 重新开启UDP发送数据| 以默认IP发送数据
     digitalWrite(LED_PIN, 1);                                    // 熄灭LED灯
+    udp4Send.endPacket();                                        // 把剩余信息发送出去
+    delay(500);                                                  // 延时，等待之前信息发送完毕
+    for (int i = 0; i < 5; i++)                                  // 循环发送设备解绑信息
+    {
+        udp4Send.write("UNBIND");
+        udp4Send.endPacket();
+        delay(10);
+    }
 }
 /*--------------------*/
 /*       WIFI模块    */

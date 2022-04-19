@@ -20,12 +20,13 @@ void serialEvent() // 伪串口接收中断函数
     static bool completeFlag = false;
     while (Serial.available())
     {
-        blink = !blink;
-        digitalWrite(LED_PIN, blink);
         char inChar = (char)Serial.read();
-        comdata += inChar;
         if (inChar == '\n')
+        {
             completeFlag = true;
+            break;
+        }
+        comdata += inChar;
     }
     if (completeFlag)
     {
@@ -34,5 +35,4 @@ void serialEvent() // 伪串口接收中断函数
         comdata = "";
         completeFlag = false;
     }
-    udpSend("Receive");
 }
